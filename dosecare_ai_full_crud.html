@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+--bg:#0a0f1e;--bg2:#0d1529;--bg3:#111827;
+--glass:rgba(255,255,255,0.04);--glass2:rgba(255,255,255,0.07);
+--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+--teal:#00d4aa;--tealb:rgba(0,212,170,0.15);
+--blue:#4facfe;--blueb:rgba(79,172,254,0.15);
+--purple:#a78bfa;--purpleb:rgba(167,139,250,0.15);
+--coral:#ff6b6b;--coralb:rgba(255,107,107,0.15);
+--amber:#fbbf24;--amberb:rgba(251,191,36,0.15);
+--green:#34d399;--greenb:rgba(52,211,153,0.15);
+--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+--r:12px;--r2:18px;--ff:'Outfit',sans-serif;--sw:220px;
+}
+.light{--bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf3;--glass:rgba(0,0,0,0.02);--glass2:rgba(0,0,0,0.04);--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--text:#1e293b;--text2:#475569;--text3:#94a3b8;}
+*{margin:0;padding:0;box-sizing:border-box;transition:background .25s,color .25s;}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);min-height:600px;}
+.app{display:flex;height:600px;overflow:hidden;border-radius:16px;border:1px solid var(--border2);}
+
+.sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.sb-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-ic{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#00d4aa,#4facfe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.logo-tx{font-size:14px;font-weight:800;background:linear-gradient(135deg,#00d4aa,#4facfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sb-nav{flex:1;padding:8px 6px;overflow-y:auto;}
+.nl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;padding:8px 10px 4px;}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;}
+.ni:hover{background:var(--glass2);color:var(--text);}
+.ni.active{background:linear-gradient(135deg,var(--tealb),var(--blueb));color:var(--teal);border:1px solid rgba(0,212,170,0.18);}
+.ni-ic{font-size:15px;width:18px;text-align:center;}
+.nb{margin-left:auto;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;color:#fff;}
+.nb.c{background:var(--coral);}
+.nb.a{background:var(--amber);}
+.sb-foot{padding:10px 6px;border-top:1px solid var(--border);}
+.ucard{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:pointer;}
+.ucard:hover{background:var(--glass2);}
+.uav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#00d4aa,#4facfe);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.un{font-size:12px;font-weight:700;}
+.ur{font-size:10px;color:var(--text3);}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 18px;height:52px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.tb-title{font-size:15px;font-weight:800;flex:1;}
+.tb-sub{font-size:11px;color:var(--text3);font-weight:400;}
+.srch{display:flex;align-items:center;gap:6px;background:var(--glass2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;}
+.srch input{background:none;border:none;outline:none;color:var(--text);font-family:var(--ff);font-size:12px;width:130px;}
+.srch input::placeholder{color:var(--text3);}
+.icbtn{width:32px;height:32px;border-radius:8px;background:var(--glass2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s;}
+.icbtn:hover{background:var(--glass);border-color:var(--border2);}
+
+.content{flex:1;overflow-y:auto;padding:16px;}
+.page{animation:fi .3s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.ph h2{font-size:17px;font-weight:800;}
+.ph p{font-size:12px;color:var(--text3);margin-top:2px;}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.sc{background:var(--glass2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;}
+.sc:hover{transform:translateY(-2px);border-color:var(--border2);}
+.sc-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:8px;}
+.sc-ic.t{background:var(--tealb);color:var(--teal);}
+.sc-ic.b{background:var(--blueb);color:var(--blue);}
+.sc-ic.c{background:var(--coralb);color:var(--coral);}
+.sc-ic.p{background:var(--purpleb);color:var(--purple);}
+.sc-ic.a{background:var(--amberb);color:var(--amber);}
+.sc-ic.g{background:var(--greenb);color:var(--green);}
+.sv{font-size:24px;font-weight:800;line-height:1;}
+.sl{font-size:11px;color:var(--text3);margin-top:3px;}
+.sch{font-size:10px;margin-top:4px;font-weight:600;}
+.sch.up{color:var(--green);}
+.sch.dn{color:var(--coral);}
+
+.card{background:var(--glass2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:14px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.card-ti{font-size:14px;font-weight:700;}
+
+.btn{padding:7px 14px;border-radius:8px;font-family:var(--ff);font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .18s;display:inline-flex;align-items:center;gap:5px;}
+.bp{background:linear-gradient(135deg,#00d4aa,#4facfe);color:#fff;}
+.bp:hover{opacity:.88;transform:translateY(-1px);}
+.bo{background:none;border:1px solid var(--border2);color:var(--text2);}
+.bo:hover{background:var(--glass2);color:var(--text);}
+.bd{background:var(--coralb);border:1px solid var(--coral);color:var(--coral);}
+.bd:hover{background:rgba(255,107,107,.25);}
+.bsm{padding:5px 10px;font-size:11px;}
+.bxs{padding:3px 8px;font-size:11px;}
+
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--glass);}
+.av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+.av.t{background:var(--tealb);color:var(--teal);}
+.av.b{background:var(--blueb);color:var(--blue);}
+.av.p{background:var(--purpleb);color:var(--purple);}
+.av.a{background:var(--amberb);color:var(--amber);}
+.pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.pg{background:var(--greenb);color:var(--green);}
+.pc{background:var(--coralb);color:var(--coral);}
+.pb{background:var(--blueb);color:var(--blue);}
+.pa{background:var(--amberb);color:var(--amber);}
+.pp{background:var(--purpleb);color:var(--purple);}
+.pt{background:var(--tealb);color:var(--teal);}
+.td-flex{display:flex;align-items:center;gap:8px;}
+.td-name{font-weight:600;font-size:12px;}
+.td-sub{font-size:11px;color:var(--text3);}
+.act-btns{display:flex;gap:5px;align-items:center;}
+
+.empty-state{text-align:center;padding:32px 16px;color:var(--text3);}
+.empty-state .ei{font-size:36px;margin-bottom:8px;}
+.empty-state p{font-size:13px;}
+
+.modal-wrap{display:none;position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;border-radius:16px;}
+.modal-wrap.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:22px;width:min(500px,90%);max-height:80vh;overflow-y:auto;animation:mi .25s ease;}
+@keyframes mi{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.mti{font-size:16px;font-weight:800;}
+.mcl{width:28px;height:28px;border-radius:7px;background:var(--glass2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text2);}
+.mcl:hover{color:var(--text);}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:11px;}
+.fg label{font-size:11px;font-weight:700;color:var(--text2);}
+.fg input,.fg select,.fg textarea{background:var(--glass2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-family:var(--ff);font-size:12px;color:var(--text);outline:none;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,212,170,.08);}
+.fg select option{background:var(--bg2);}
+.fg textarea{resize:vertical;min-height:70px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+.toast{position:absolute;bottom:16px;right:16px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:11px 14px;font-size:12px;z-index:300;display:flex;align-items:center;gap:8px;min-width:200px;animation:ti .25s ease;}
+.toast.out{animation:to .25s ease forwards;}
+@keyframes ti{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes to{to{transform:translateY(10px);opacity:0}}
+
+.confirm-wrap{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;border-radius:16px;}
+.confirm-wrap.show{display:flex;}
+.confirm{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:20px;width:300px;text-align:center;}
+.confirm h3{font-size:15px;font-weight:800;margin-bottom:6px;}
+.confirm p{font-size:12px;color:var(--text2);margin-bottom:16px;}
+.confirm-acts{display:flex;gap:8px;justify-content:center;}
+
+.srch-bar{margin-bottom:12px;}
+.srch-bar input{width:100%;background:var(--glass2);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--ff);font-size:12px;color:var(--text);outline:none;}
+.srch-bar input:focus{border-color:var(--teal);}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="app" id="app" style="position:relative;">
+
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="logo"><div class="logo-ic">💊</div><div class="logo-tx">DoseCare AI</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nl">Overview</div>
+    <div class="ni active" onclick="nav('dashboard')"><span class="ni-ic">📊</span>Dashboard</div>
+    <div class="nl">Records</div>
+    <div class="ni" onclick="nav('patients')"><span class="ni-ic">👥</span>Patients<span class="nb c" id="nb-patients">0</span></div>
+    <div class="ni" onclick="nav('doctors')"><span class="ni-ic">👨‍⚕️</span>Doctors<span class="nb a" id="nb-doctors">0</span></div>
+    <div class="ni" onclick="nav('drugs')"><span class="ni-ic">💊</span>Drug Database<span class="nb" style="background:var(--purple)" id="nb-drugs">0</span></div>
+    <div class="nl">Clinical</div>
+    <div class="ni" onclick="nav('prescriptions')"><span class="ni-ic">📋</span>Prescriptions</div>
+    <div class="ni" onclick="nav('interactions')"><span class="ni-ic">⚗️</span>Interactions</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="ucard">
+      <div class="uav">DR</div>
+      <div><div class="un">Dr. Ravi Sharma</div><div class="ur">Admin · Physician</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="page-title">Dashboard <span class="tb-sub" id="page-sub">Live overview</span></div>
+    <div class="srch"><span style="font-size:12px;color:var(--text3)">🔍</span><input type="text" placeholder="Search..." id="global-srch" oninput="globalSearch(this.value)"/></div>
+    <div class="icbtn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</div>
+  </div>
+  <div class="content" id="content">
+
+    <div id="pg-dashboard" class="page">
+      <div class="sgrid">
+        <div class="sc" onclick="nav('patients')"><div class="sc-ic t">👥</div><div class="sv" id="ds-patients">0</div><div class="sl">Patients</div><div class="sch up" id="ds-pt-ch"></div></div>
+        <div class="sc" onclick="nav('doctors')"><div class="sc-ic b">👨‍⚕️</div><div class="sv" id="ds-doctors">0</div><div class="sl">Doctors</div><div class="sch" id="ds-dr-ch"></div></div>
+        <div class="sc" onclick="nav('drugs')"><div class="sc-ic p">💊</div><div class="sv" id="ds-drugs">0</div><div class="sl">Drugs in DB</div><div class="sch" id="ds-dg-ch"></div></div>
+        <div class="sc"><div class="sc-ic g">📋</div><div class="sv" id="ds-presc">0</div><div class="sl">Prescriptions</div></div>
+        <div class="sc"><div class="sc-ic a">⚠️</div><div class="sv" id="ds-missed">3</div><div class="sl">Missed Doses</div><div class="sch dn">Today</div></div>
+        <div class="sc"><div class="sc-ic c">📊</div><div class="sv" id="ds-adh">94.7%</div><div class="sl">Adherence Rate</div><div class="sch up">↑ 2.3%</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="card">
+          <div class="card-hd"><span class="card-ti">Recent Patients</span><button class="btn bo bsm" onclick="nav('patients')">View All</button></div>
+          <div id="dash-patients-list"><div class="empty-state"><div class="ei">👥</div><p>No patients yet.<br/>Add one to get started!</p></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-ti">Recent Doctors</span><button class="btn bo bsm" onclick="nav('doctors')">View All</button></div>
+          <div id="dash-doctors-list"><div class="empty-state"><div class="ei">👨‍⚕️</div><p>No doctors added yet.</p></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-ti">Drug Database Overview</span><button class="btn bo bsm" onclick="nav('drugs')">Manage Drugs</button></div>
+        <div id="dash-drugs-list"><div class="empty-state"><div class="ei">💊</div><p>No drugs in database yet.</p></div></div>
+      </div>
+    </div>
+
+    <div id="pg-patients" class="page" style="display:none">
+      <div class="ph">
+        <div><h2>Patient Management</h2><p id="pt-count-label">0 patients registered</p></div>
+        <button class="btn bp" onclick="openModal('patient')">+ Add Patient</button>
+      </div>
+      <div class="srch-bar"><input type="text" placeholder="🔍 Search by name, condition, doctor..." oninput="filterTable('patients-tbody',this.value,ptSearchCols)"/></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Patient</th><th>Age / Gender</th><th>Condition</th><th>Assigned Doctor</th><th>Allergies</th><th>Adherence</th><th>Actions</th></tr></thead>
+          <tbody id="patients-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="pg-doctors" class="page" style="display:none">
+      <div class="ph">
+        <div><h2>Doctor Management</h2><p id="dr-count-label">0 doctors registered</p></div>
+        <button class="btn bp" onclick="openModal('doctor')">+ Add Doctor</button>
+      </div>
+      <div class="srch-bar"><input type="text" placeholder="🔍 Search by name, specialization, dept..." oninput="filterTable('doctors-tbody',this.value,drSearchCols)"/></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Doctor</th><th>Specialization</th><th>Department</th><th>Contact</th><th>Patients</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="doctors-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="pg-drugs" class="page" style="display:none">
+      <div class="ph">
+        <div><h2>Drug Database</h2><p id="dg-count-label">0 drugs in database</p></div>
+        <button class="btn bp" onclick="openModal('drug')">+ Add Drug</button>
+      </div>
+      <div class="srch-bar"><input type="text" placeholder="🔍 Search by name, category, manufacturer..." oninput="filterTable('drugs-tbody',this.value,dgSearchCols)"/></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Drug</th><th>Category</th><th>Dosage Forms</th><th>Manufacturer</th><th>Stock</th><th>Risk</th><th>Actions</th></tr></thead>
+          <tbody id="drugs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="pg-prescriptions" class="page" style="display:none">
+      <div class="ph">
+        <div><h2>Prescriptions</h2><p>Create and manage prescriptions</p></div>
+        <button class="btn bp" onclick="openModal('prescription')">+ New Prescription</button>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Rx ID</th><th>Patient</th><th>Doctor</th><th>Drug</th><th>Dosage</th><th>Frequency</th><th>Start–End</th><th>Actions</th></tr></thead>
+          <tbody id="prescriptions-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="pg-interactions" class="page" style="display:none">
+      <div class="ph"><div><h2>Drug Interaction Checker</h2><p>Check interactions between two drugs from the database</p></div></div>
+      <div class="card">
+        <div class="fr" style="margin-bottom:12px">
+          <div class="fg"><label>Drug 1</label><select id="int-d1"><option value="">Select drug...</option></select></div>
+          <div class="fg"><label>Drug 2</label><select id="int-d2"><option value="">Select drug...</option></select></div>
+        </div>
+        <button class="btn bp" onclick="checkInteraction()">Check Interaction</button>
+        <div id="int-result" style="margin-top:14px"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-ti">Known Interaction Pairs</span></div>
+        <div class="tw"><table><thead><tr><th>Drug A</th><th>Drug B</th><th>Risk Level</th><th>Warning</th></tr></thead>
+        <tbody id="known-interactions">
+          <tr><td>Warfarin</td><td>Aspirin</td><td><span class="pill pc">Severe</span></td><td style="font-size:11px;color:var(--text2)">Major bleeding risk — monitor INR</td></tr>
+          <tr><td>MAOIs</td><td>SSRIs</td><td><span class="pill pc">Severe</span></td><td style="font-size:11px;color:var(--text2)">Serotonin syndrome — contraindicated</td></tr>
+          <tr><td>Metformin</td><td>Alcohol</td><td><span class="pill pa">Moderate</span></td><td style="font-size:11px;color:var(--text2)">Lactic acidosis risk</td></tr>
+          <tr><td>Metformin</td><td>Lisinopril</td><td><span class="pill pg">Safe</span></td><td style="font-size:11px;color:var(--text2)">No significant interaction</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-patient">
+  <div class="modal">
+    <div class="mhd"><div class="mti" id="mp-title">Add Patient</div><div class="mcl" onclick="closeModal('modal-patient')">✕</div></div>
+    <input type="hidden" id="mp-id"/>
+    <div class="fr"><div class="fg"><label>Full Name *</label><input id="mp-name" placeholder="e.g. Priya Kumar"/></div><div class="fg"><label>Age *</label><input id="mp-age" type="number" placeholder="Age in years" min="0" max="150"/></div></div>
+    <div class="fr"><div class="fg"><label>Gender</label><select id="mp-gender"><option>Female</option><option>Male</option><option>Other</option></select></div><div class="fg"><label>Weight (kg)</label><input id="mp-weight" type="number" placeholder="e.g. 65"/></div></div>
+    <div class="fr"><div class="fg"><label>Blood Group</label><select id="mp-blood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div><div class="fg"><label>Assigned Doctor</label><select id="mp-doctor"><option value="">-- None --</option></select></div></div>
+    <div class="fg"><label>Medical Conditions</label><input id="mp-conditions" placeholder="e.g. Diabetes Type 2, Hypertension"/></div>
+    <div class="fg"><label>Known Allergies</label><input id="mp-allergies" placeholder="e.g. Penicillin, Sulfa drugs"/></div>
+    <div class="fr"><div class="fg"><label>Phone</label><input id="mp-phone" placeholder="+91 9XXXXXXX"/></div><div class="fg"><label>Emergency Contact</label><input id="mp-emergency" placeholder="Name & number"/></div></div>
+    <div class="fg"><label>Adherence (%)</label><input id="mp-adherence" type="number" placeholder="e.g. 92" min="0" max="100"/></div>
+    <div class="fg"><label>Notes</label><textarea id="mp-notes" placeholder="Additional notes..."></textarea></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeModal('modal-patient')">Cancel</button><button class="btn bp" onclick="savePatient()">Save Patient</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-doctor">
+  <div class="modal">
+    <div class="mhd"><div class="mti" id="md-title">Add Doctor</div><div class="mcl" onclick="closeModal('modal-doctor')">✕</div></div>
+    <input type="hidden" id="md-id"/>
+    <div class="fr"><div class="fg"><label>Full Name *</label><input id="md-name" placeholder="Dr. Full Name"/></div><div class="fg"><label>Specialization *</label><input id="md-spec" placeholder="e.g. Cardiology"/></div></div>
+    <div class="fr"><div class="fg"><label>Department</label><input id="md-dept" placeholder="e.g. Internal Medicine"/></div><div class="fg"><label>License No.</label><input id="md-lic" placeholder="MCI-XXXXXX"/></div></div>
+    <div class="fr"><div class="fg"><label>Email</label><input id="md-email" type="email" placeholder="doctor@hospital.com"/></div><div class="fg"><label>Phone</label><input id="md-phone" placeholder="+91 9XXXXXXX"/></div></div>
+    <div class="fr"><div class="fg"><label>Qualification</label><input id="md-qual" placeholder="e.g. MBBS, MD, DM"/></div><div class="fg"><label>Experience (years)</label><input id="md-exp" type="number" placeholder="e.g. 12" min="0"/></div></div>
+    <div class="fr"><div class="fg"><label>Status</label><select id="md-status"><option>Active</option><option>On Leave</option><option>Inactive</option></select></div><div class="fg"><label>Consulting Hours</label><input id="md-hours" placeholder="e.g. Mon-Fri 9am-5pm"/></div></div>
+    <div class="fg"><label>Notes</label><textarea id="md-notes" placeholder="Additional notes..."></textarea></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeModal('modal-doctor')">Cancel</button><button class="btn bp" onclick="saveDoctor()">Save Doctor</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-drug">
+  <div class="modal">
+    <div class="mhd"><div class="mti" id="mdg-title">Add Drug</div><div class="mcl" onclick="closeModal('modal-drug')">✕</div></div>
+    <input type="hidden" id="mdg-id"/>
+    <div class="fr"><div class="fg"><label>Drug Name *</label><input id="mdg-name" placeholder="e.g. Metformin"/></div><div class="fg"><label>Generic Name</label><input id="mdg-generic" placeholder="e.g. Metformin Hydrochloride"/></div></div>
+    <div class="fr"><div class="fg"><label>Category *</label><select id="mdg-cat"><option>Antidiabetic</option><option>Antihypertensive</option><option>Antibiotic</option><option>Analgesic</option><option>Anticoagulant</option><option>Bronchodilator</option><option>Antilipidemic</option><option>Antidepressant</option><option>Antacid</option><option>Antihistamine</option><option>Other</option></select></div><div class="fg"><label>Dosage Forms</label><input id="mdg-forms" placeholder="e.g. Tablet, Capsule, Syrup"/></div></div>
+    <div class="fr"><div class="fg"><label>Standard Dosage</label><input id="mdg-dose" placeholder="e.g. 500mg twice daily"/></div><div class="fg"><label>Route</label><select id="mdg-route"><option>Oral</option><option>IV</option><option>IM Injection</option><option>Subcutaneous</option><option>Topical</option><option>Inhalation</option><option>Sublingual</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Manufacturer</label><input id="mdg-mfr" placeholder="e.g. Sun Pharma"/></div><div class="fg"><label>Stock (units)</label><input id="mdg-stock" type="number" placeholder="e.g. 500" min="0"/></div></div>
+    <div class="fr"><div class="fg"><label>Risk Level</label><select id="mdg-risk"><option>Low</option><option>Moderate</option><option>High</option><option>Critical</option></select></div><div class="fg"><label>Requires Prescription</label><select id="mdg-rx"><option>Yes</option><option>No</option></select></div></div>
+    <div class="fg"><label>Side Effects</label><input id="mdg-se" placeholder="e.g. Nausea, headache, dizziness"/></div>
+    <div class="fg"><label>Contraindications</label><textarea id="mdg-ci" placeholder="e.g. Renal impairment (eGFR<30), pregnancy..."></textarea></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeModal('modal-drug')">Cancel</button><button class="btn bp" onclick="saveDrug()">Save Drug</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-prescription">
+  <div class="modal">
+    <div class="mhd"><div class="mti">New Prescription</div><div class="mcl" onclick="closeModal('modal-prescription')">✕</div></div>
+    <div class="fr"><div class="fg"><label>Patient *</label><select id="prx-patient"><option value="">Select patient...</option></select></div><div class="fg"><label>Doctor *</label><select id="prx-doctor"><option value="">Select doctor...</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Drug *</label><select id="prx-drug"><option value="">Select drug...</option></select></div><div class="fg"><label>Dosage</label><input id="prx-dose" placeholder="e.g. 500mg"/></div></div>
+    <div class="fr"><div class="fg"><label>Frequency</label><select id="prx-freq"><option>Once daily</option><option>Twice daily</option><option>Three times daily</option><option>Every 8 hours</option><option>As needed (PRN)</option><option>Weekly</option></select></div><div class="fg"><label>Route</label><select id="prx-route"><option>Oral</option><option>IV</option><option>IM</option><option>Topical</option><option>Inhalation</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Start Date</label><input id="prx-start" type="date"/></div><div class="fg"><label>End Date</label><input id="prx-end" type="date"/></div></div>
+    <div class="fg"><label>Notes</label><textarea id="prx-notes" placeholder="Special instructions..."></textarea></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeModal('modal-prescription')">Cancel</button><button class="btn bp" onclick="savePrescription()">Create Prescription</button></div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-view-patient">
+  <div class="modal">
+    <div class="mhd"><div class="mti">Patient Details</div><div class="mcl" onclick="closeModal('modal-view-patient')">✕</div></div>
+    <div id="view-patient-content"></div>
+    <div class="mfoot"><button class="btn bo" onclick="closeModal('modal-view-patient')">Close</button></div>
+  </div>
+</div>
+
+<div class="confirm-wrap" id="confirm-delete">
+  <div class="confirm">
+    <h3>Delete Record?</h3>
+    <p id="confirm-msg">This action cannot be undone.</p>
+    <div class="confirm-acts">
+      <button class="btn bo" onclick="document.getElementById('confirm-delete').classList.remove('show')">Cancel</button>
+      <button class="btn bd" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let darkMode=true;
+let toastTm=null;
+let currentPage='dashboard';
+let pendingDelete=null;
+
+let patients=[];
+let doctors=[];
+let drugs=[];
+let prescriptions=[];
+let nextId={p:1,d:1,dg:1,rx:1};
+
+const ptSearchCols=[0,2,3];
+const drSearchCols=[0,1,2];
+const dgSearchCols=[0,1,3];
+
+function init(){
+  patients=[
+    {id:'P001',name:'Priya Kumar',age:52,gender:'Female',weight:62,blood:'B+',conditions:'Diabetes Type 2, Hypertension',allergies:'Penicillin',phone:'+91 9845001122',emergency:'Ravi Kumar - 9845001123',doctor:'D001',adherence:96,notes:'Well-controlled diabetes. Monthly HbA1c monitoring.'},
+    {id:'P002',name:'Ramesh Iyer',age:67,gender:'Male',weight:78,blood:'O+',conditions:'Hypertension, CKD Stage 2',allergies:'None known',phone:'+91 9876543210',emergency:'Shantha Iyer - 9876543211',doctor:'D001',adherence:71,notes:'Poor medication adherence. Follow-up required.'},
+    {id:'P003',name:'Kavya Venkatesh',age:29,gender:'Female',weight:55,blood:'A+',conditions:'Hypothyroidism',allergies:'Sulfa drugs',phone:'+91 9900112233',emergency:'Arvind V - 9900112234',doctor:'D002',adherence:100,notes:'Stable on current dose.'},
+  ];
+  nextId.p=4;
+  doctors=[
+    {id:'D001',name:'Dr. Ravi Sharma',spec:'Internal Medicine',dept:'General Medicine',lic:'MCI-2019-08421',email:'ravi.sharma@hospital.in',phone:'+91 9811223344',qual:'MBBS, MD',exp:14,status:'Active',hours:'Mon-Sat 9am-6pm',notes:'Head of General Medicine department.'},
+    {id:'D002',name:'Dr. Meera Nair',spec:'Endocrinology',dept:'Endocrinology',lic:'MCI-2021-10245',email:'meera.nair@hospital.in',phone:'+91 9833445566',qual:'MBBS, MD, DM',exp:9,status:'Active',hours:'Mon-Fri 10am-4pm',notes:'Specialist in thyroid and diabetes management.'},
+  ];
+  nextId.d=3;
+  drugs=[
+    {id:'DG001',name:'Metformin',generic:'Metformin Hydrochloride',cat:'Antidiabetic',forms:'Tablet, Extended-Release Tablet',dose:'500mg twice daily',route:'Oral',mfr:'Sun Pharma',stock:850,risk:'Low',rx:'Yes',se:'Nausea, diarrhoea, GI upset',ci:'eGFR <30, contrast agents, hepatic impairment'},
+    {id:'DG002',name:'Lisinopril',generic:'Lisinopril',cat:'Antihypertensive',forms:'Tablet',dose:'10mg once daily',route:'Oral',mfr:'Cipla',stock:420,risk:'Moderate',rx:'Yes',se:'Dry cough, dizziness, hyperkalaemia',ci:'Pregnancy, ACE inhibitor hypersensitivity, bilateral RAS'},
+    {id:'DG003',name:'Levothyroxine',generic:'Levothyroxine Sodium',cat:'Other',forms:'Tablet',dose:'50mcg once daily',route:'Oral',mfr:'Abbott',stock:300,risk:'Low',rx:'Yes',se:'Palpitations, insomnia if overdosed',ci:'Untreated adrenal insufficiency, acute MI'},
+  ];
+  nextId.dg=4;
+  prescriptions=[
+    {id:'RX001',patient:'P001',doctor:'D001',drug:'DG001',dose:'500mg',freq:'Twice daily',route:'Oral',start:'2025-01-15',end:'2025-07-15',notes:'Take with meals'},
+    {id:'RX002',patient:'P002',doctor:'D001',drug:'DG002',dose:'10mg',freq:'Once daily',route:'Oral',start:'2025-02-01',end:'2025-08-01',notes:'Monitor blood pressure weekly'},
+    {id:'RX003',patient:'P003',doctor:'D002',drug:'DG003',dose:'50mcg',freq:'Once daily',route:'Oral',start:'2025-03-10',end:'2026-03-10',notes:'Take on empty stomach, 30 mins before breakfast'},
+  ];
+  nextId.rx=4;
+  renderAll();
+}
+
+function renderAll(){
+  updateBadges();
+  updateDashboard();
+  renderPatients();
+  renderDoctors();
+  renderDrugs();
+  renderPrescriptions();
+  updateInteractionDropdowns();
+}
+
+function updateBadges(){
+  document.getElementById('nb-patients').textContent=patients.length;
+  document.getElementById('nb-doctors').textContent=doctors.length;
+  document.getElementById('nb-drugs').textContent=drugs.length;
+}
+
+function updateDashboard(){
+  document.getElementById('ds-patients').textContent=patients.length;
+  document.getElementById('ds-doctors').textContent=doctors.length;
+  document.getElementById('ds-drugs').textContent=drugs.length;
+  document.getElementById('ds-presc').textContent=prescriptions.length;
+  document.getElementById('ds-pt-ch').textContent=patients.length?patients.length+' registered':'None yet';
+  document.getElementById('ds-dr-ch').textContent=doctors.length?doctors.length+' on staff':'None yet';
+  document.getElementById('ds-dg-ch').textContent=drugs.length?drugs.length+' drugs':'Empty';
+
+  const ptList=document.getElementById('dash-patients-list');
+  if(!patients.length){ptList.innerHTML='<div class="empty-state"><div class="ei">👥</div><p>No patients yet.</p></div>';return;}
+  const recent=patients.slice(-3).reverse();
+  ptList.innerHTML=recent.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><div class="av t">${initials(p.name)}</div><div style="flex:1"><div class="td-name">${esc(p.name)}</div><div class="td-sub">${p.age}y · ${p.conditions.split(',')[0]}</div></div><span class="pill ${adh(p.adherence)}">${p.adherence||'?'}%</span></div>`).join('');
+
+  const drList=document.getElementById('dash-doctors-list');
+  if(!doctors.length){drList.innerHTML='<div class="empty-state"><div class="ei">👨‍⚕️</div><p>No doctors added yet.</p></div>';return;}
+  const rdr=doctors.slice(-3).reverse();
+  drList.innerHTML=rdr.map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><div class="av b">${initials(d.name)}</div><div style="flex:1"><div class="td-name">${esc(d.name)}</div><div class="td-sub">${d.spec}</div></div><span class="pill ${d.status==='Active'?'pg':'pa'}">${d.status}</span></div>`).join('');
+
+  const dgList=document.getElementById('dash-drugs-list');
+  if(!drugs.length){dgList.innerHTML='<div class="empty-state"><div class="ei">💊</div><p>No drugs yet.</p></div>';return;}
+  dgList.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">`+drugs.slice(-6).reverse().map(d=>`<div style="background:var(--glass);border:1px solid var(--border);border-radius:9px;padding:10px"><div style="font-size:12px;font-weight:700">${esc(d.name)}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${d.cat}</div><div style="margin-top:5px"><span class="pill ${riskPill(d.risk)}">${d.risk} risk</span></div></div>`).join('')+'</div>';
+}
+
+function renderPatients(){
+  const tb=document.getElementById('patients-tbody');
+  document.getElementById('pt-count-label').textContent=patients.length+' patient'+(patients.length!==1?'s':'')+' registered';
+  if(!patients.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="ei">👥</div><p>No patients yet. Click "+ Add Patient" to add one.</p></div></td></tr>`;return;}
+  tb.innerHTML=patients.map(p=>{
+    const doc=doctors.find(d=>d.id===p.doctor);
+    return `<tr data-search="${[p.name,p.conditions,doc?doc.name:''].join(' ').toLowerCase()}">
+      <td><div class="td-flex"><div class="av t">${initials(p.name)}</div><div><div class="td-name">${esc(p.name)}</div><div class="td-sub">${p.id}</div></div></div></td>
+      <td>${p.age}y / ${p.gender}</td>
+      <td style="max-width:120px;"><span style="font-size:11px">${esc(p.conditions)||'—'}</span></td>
+      <td>${doc?`<span style="font-size:12px">${esc(doc.name)}</span>`:'<span style="color:var(--text3)">Unassigned</span>'}</td>
+      <td style="font-size:11px;color:var(--text2)">${esc(p.allergies)||'None'}</td>
+      <td><span style="font-weight:700;color:${p.adherence>=90?'var(--green)':p.adherence>=70?'var(--amber)':'var(--coral)'}">${p.adherence||'?'}%</span></td>
+      <td><div class="act-btns">
+        <button class="btn bo bxs" onclick="viewPatient('${p.id}')">View</button>
+        <button class="btn bo bxs" onclick="editPatient('${p.id}')">Edit</button>
+        <button class="btn bd bxs" onclick="confirmDelete('patient','${p.id}','${esc(p.name)}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDoctors(){
+  const tb=document.getElementById('doctors-tbody');
+  document.getElementById('dr-count-label').textContent=doctors.length+' doctor'+(doctors.length!==1?'s':'')+' registered';
+  if(!doctors.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="ei">👨‍⚕️</div><p>No doctors yet. Click "+ Add Doctor" to add one.</p></div></td></tr>`;return;}
+  tb.innerHTML=doctors.map(d=>{
+    const ptCount=patients.filter(p=>p.doctor===d.id).length;
+    return `<tr data-search="${[d.name,d.spec,d.dept].join(' ').toLowerCase()}">
+      <td><div class="td-flex"><div class="av b">${initials(d.name)}</div><div><div class="td-name">${esc(d.name)}</div><div class="td-sub">${d.id} · ${d.qual}</div></div></div></td>
+      <td>${esc(d.spec)}</td>
+      <td>${esc(d.dept)||'—'}</td>
+      <td><div style="font-size:11px;color:var(--text2)">${esc(d.email)||'—'}<br/>${esc(d.phone)||''}</div></td>
+      <td><span class="pill pt">${ptCount} patient${ptCount!==1?'s':''}</span></td>
+      <td><span class="pill ${d.status==='Active'?'pg':d.status==='On Leave'?'pa':'pc'}">${d.status}</span></td>
+      <td><div class="act-btns">
+        <button class="btn bo bxs" onclick="editDoctor('${d.id}')">Edit</button>
+        <button class="btn bd bxs" onclick="confirmDelete('doctor','${d.id}','${esc(d.name)}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDrugs(){
+  const tb=document.getElementById('drugs-tbody');
+  document.getElementById('dg-count-label').textContent=drugs.length+' drug'+(drugs.length!==1?'s':'')+' in database';
+  if(!drugs.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="ei">💊</div><p>No drugs yet. Click "+ Add Drug" to populate the database.</p></div></td></tr>`;return;}
+  tb.innerHTML=drugs.map(d=>`<tr data-search="${[d.name,d.cat,d.mfr].join(' ').toLowerCase()}">
+    <td><div class="td-flex"><div class="av p" style="font-size:9px">💊</div><div><div class="td-name">${esc(d.name)}</div><div class="td-sub">${esc(d.generic)||''}</div></div></div></td>
+    <td><span class="pill pp">${d.cat}</span></td>
+    <td style="font-size:11px;color:var(--text2)">${esc(d.forms)||'—'}</td>
+    <td style="font-size:12px">${esc(d.mfr)||'—'}</td>
+    <td><span style="font-weight:700;color:${d.stock>200?'var(--green)':d.stock>50?'var(--amber)':'var(--coral)'}">${d.stock||0}</span></td>
+    <td><span class="pill ${riskPill(d.risk)}">${d.risk}</span></td>
+    <td><div class="act-btns">
+      <button class="btn bo bxs" onclick="editDrug('${d.id}')">Edit</button>
+      <button class="btn bd bxs" onclick="confirmDelete('drug','${d.id}','${esc(d.name)}')">Del</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderPrescriptions(){
+  const tb=document.getElementById('prescriptions-tbody');
+  if(!prescriptions.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="ei">📋</div><p>No prescriptions yet.</p></div></td></tr>`;return;}
+  tb.innerHTML=prescriptions.map(rx=>{
+    const pt=patients.find(p=>p.id===rx.patient);
+    const dr=doctors.find(d=>d.id===rx.doctor);
+    const dg=drugs.find(d=>d.id===rx.drug);
+    return `<tr>
+      <td style="font-size:11px;font-weight:700;color:var(--teal)">${rx.id}</td>
+      <td>${pt?esc(pt.name):'<span style="color:var(--text3)">Deleted</span>'}</td>
+      <td>${dr?esc(dr.name):'<span style="color:var(--text3)">Deleted</span>'}</td>
+      <td>${dg?esc(dg.name):'<span style="color:var(--text3)">Deleted</span>'}</td>
+      <td style="font-size:11px">${esc(rx.dose)}</td>
+      <td style="font-size:11px">${rx.freq}</td>
+      <td style="font-size:10px;color:var(--text3)">${rx.start} → ${rx.end||'Open'}</td>
+      <td><button class="btn bd bxs" onclick="confirmDelete('prescription','${rx.id}','Rx ${rx.id}')">Del</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateInteractionDropdowns(){
+  const opts=drugs.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  document.getElementById('int-d1').innerHTML='<option value="">Select drug...</option>'+opts;
+  document.getElementById('int-d2').innerHTML='<option value="">Select drug...</option>'+opts;
+}
+
+function populatePrescriptionDropdowns(){
+  document.getElementById('prx-patient').innerHTML='<option value="">Select patient...</option>'+patients.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  document.getElementById('prx-doctor').innerHTML='<option value="">Select doctor...</option>'+doctors.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  document.getElementById('prx-drug').innerHTML='<option value="">Select drug...</option>'+drugs.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+}
+
+function populateDoctorDropdown(){
+  document.getElementById('mp-doctor').innerHTML='<option value="">-- None --</option>'+doctors.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+}
+
+function openModal(type){
+  if(type==='patient'){populateDoctorDropdown();clearPatientForm();document.getElementById('mp-title').textContent='Add Patient';document.getElementById('modal-patient').classList.add('show');}
+  else if(type==='doctor'){clearDoctorForm();document.getElementById('md-title').textContent='Add Doctor';document.getElementById('modal-doctor').classList.add('show');}
+  else if(type==='drug'){clearDrugForm();document.getElementById('mdg-title').textContent='Add Drug';document.getElementById('modal-drug').classList.add('show');}
+  else if(type==='prescription'){populatePrescriptionDropdowns();const today=new Date().toISOString().split('T')[0];document.getElementById('prx-start').value=today;document.getElementById('modal-prescription').classList.add('show');}
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+function clearPatientForm(){['mp-id','mp-name','mp-age','mp-weight','mp-conditions','mp-allergies','mp-phone','mp-emergency','mp-adherence','mp-notes'].forEach(f=>document.getElementById(f).value='');}
+function clearDoctorForm(){['md-id','md-name','md-spec','md-dept','md-lic','md-email','md-phone','md-qual','md-exp','md-hours','md-notes'].forEach(f=>document.getElementById(f).value='');}
+function clearDrugForm(){['mdg-id','mdg-name','mdg-generic','mdg-forms','mdg-dose','mdg-mfr','mdg-stock','mdg-se','mdg-ci'].forEach(f=>document.getElementById(f).value='');}
+
+function savePatient(){
+  const name=document.getElementById('mp-name').value.trim();
+  const age=document.getElementById('mp-age').value;
+  if(!name){showToast('⚠️ Patient name is required','coral');return;}
+  if(!age||isNaN(age)||age<0||age>150){showToast('⚠️ Please enter a valid age','coral');return;}
+  const id=document.getElementById('mp-id').value;
+  const data={id:id||'P'+String(nextId.p++).padStart(3,'0'),name,age:parseInt(age),gender:document.getElementById('mp-gender').value,weight:document.getElementById('mp-weight').value||'—',blood:document.getElementById('mp-blood').value,conditions:document.getElementById('mp-conditions').value||'Not specified',allergies:document.getElementById('mp-allergies').value||'None known',phone:document.getElementById('mp-phone').value,emergency:document.getElementById('mp-emergency').value,doctor:document.getElementById('mp-doctor').value,adherence:parseInt(document.getElementById('mp-adherence').value)||0,notes:document.getElementById('mp-notes').value};
+  if(id){const i=patients.findIndex(p=>p.id===id);if(i>=0)patients[i]=data;showToast('✅ Patient updated!','teal');}
+  else{patients.push(data);showToast('✅ Patient added successfully!','teal');}
+  closeModal('modal-patient');
+  renderAll();
+}
+
+function editPatient(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  populateDoctorDropdown();
+  document.getElementById('mp-title').textContent='Edit Patient';
+  document.getElementById('mp-id').value=p.id;
+  document.getElementById('mp-name').value=p.name;
+  document.getElementById('mp-age').value=p.age;
+  document.getElementById('mp-gender').value=p.gender;
+  document.getElementById('mp-weight').value=p.weight;
+  document.getElementById('mp-blood').value=p.blood;
+  document.getElementById('mp-conditions').value=p.conditions;
+  document.getElementById('mp-allergies').value=p.allergies;
+  document.getElementById('mp-phone').value=p.phone||'';
+  document.getElementById('mp-emergency').value=p.emergency||'';
+  document.getElementById('mp-doctor').value=p.doctor||'';
+  document.getElementById('mp-adherence').value=p.adherence||'';
+  document.getElementById('mp-notes').value=p.notes||'';
+  document.getElementById('modal-patient').classList.add('show');
+}
+
+function viewPatient(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  const doc=doctors.find(d=>d.id===p.doctor);
+  const prx=prescriptions.filter(rx=>rx.patient===p.id);
+  document.getElementById('view-patient-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--tealb);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--teal)">${initials(p.name)}</div>
+      <div><div style="font-size:16px;font-weight:800">${esc(p.name)}</div><div style="font-size:12px;color:var(--text3)">${p.id} · ${p.age}y ${p.gender} · Blood: ${p.blood}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">CONDITIONS</div><div style="font-size:13px">${esc(p.conditions)}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">ALLERGIES</div><div style="font-size:13px;color:var(--coral)">${esc(p.allergies)}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">ASSIGNED DOCTOR</div><div style="font-size:13px">${doc?esc(doc.name):'Not assigned'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">ADHERENCE</div><div style="font-size:20px;font-weight:800;color:${p.adherence>=90?'var(--green)':p.adherence>=70?'var(--amber)':'var(--coral)'}">${p.adherence}%</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">PHONE</div><div style="font-size:13px">${esc(p.phone)||'—'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">EMERGENCY</div><div style="font-size:13px">${esc(p.emergency)||'—'}</div></div>
+    </div>
+    ${p.notes?`<div style="background:var(--glass);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:12px;color:var(--text2);margin-bottom:12px">${esc(p.notes)}</div>`:''}
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px">Prescriptions (${prx.length})</div>
+    ${prx.length?prx.map(rx=>{const dg=drugs.find(d=>d.id===rx.drug);return `<div style="background:var(--glass);border:1px solid var(--border);border-radius:9px;padding:9px;margin-bottom:7px;font-size:12px"><span style="font-weight:700;color:var(--teal)">${rx.id}</span> · ${dg?esc(dg.name):'Deleted drug'} · ${esc(rx.dose)} · ${rx.freq}</div>`;}).join(''):`<div style="color:var(--text3);font-size:12px">No prescriptions found.</div>`}
+  `;
+  document.getElementById('modal-view-patient').classList.add('show');
+}
+
+function saveDoctor(){
+  const name=document.getElementById('md-name').value.trim();
+  const spec=document.getElementById('md-spec').value.trim();
+  if(!name){showToast('⚠️ Doctor name is required','coral');return;}
+  if(!spec){showToast('⚠️ Specialization is required','coral');return;}
+  const id=document.getElementById('md-id').value;
+  const data={id:id||'D'+String(nextId.d++).padStart(3,'0'),name,spec,dept:document.getElementById('md-dept').value,lic:document.getElementById('md-lic').value,email:document.getElementById('md-email').value,phone:document.getElementById('md-phone').value,qual:document.getElementById('md-qual').value,exp:parseInt(document.getElementById('md-exp').value)||0,status:document.getElementById('md-status').value,hours:document.getElementById('md-hours').value,notes:document.getElementById('md-notes').value};
+  if(id){const i=doctors.findIndex(d=>d.id===id);if(i>=0)doctors[i]=data;showToast('✅ Doctor updated!','blue');}
+  else{doctors.push(data);showToast('✅ Doctor added successfully!','blue');}
+  closeModal('modal-doctor');
+  renderAll();
+}
+
+function editDoctor(id){
+  const d=doctors.find(x=>x.id===id);if(!d)return;
+  document.getElementById('md-title').textContent='Edit Doctor';
+  document.getElementById('md-id').value=d.id;
+  document.getElementById('md-name').value=d.name;
+  document.getElementById('md-spec').value=d.spec;
+  document.getElementById('md-dept').value=d.dept||'';
+  document.getElementById('md-lic').value=d.lic||'';
+  document.getElementById('md-email').value=d.email||'';
+  document.getElementById('md-phone').value=d.phone||'';
+  document.getElementById('md-qual').value=d.qual||'';
+  document.getElementById('md-exp').value=d.exp||'';
+  document.getElementById('md-status').value=d.status||'Active';
+  document.getElementById('md-hours').value=d.hours||'';
+  document.getElementById('md-notes').value=d.notes||'';
+  document.getElementById('modal-doctor').classList.add('show');
+}
+
+function saveDrug(){
+  const name=document.getElementById('mdg-name').value.trim();
+  if(!name){showToast('⚠️ Drug name is required','coral');return;}
+  const id=document.getElementById('mdg-id').value;
+  const data={id:id||'DG'+String(nextId.dg++).padStart(3,'0'),name,generic:document.getElementById('mdg-generic').value,cat:document.getElementById('mdg-cat').value,forms:document.getElementById('mdg-forms').value,dose:document.getElementById('mdg-dose').value,route:document.getElementById('mdg-route').value,mfr:document.getElementById('mdg-mfr').value,stock:parseInt(document.getElementById('mdg-stock').value)||0,risk:document.getElementById('mdg-risk').value,rx:document.getElementById('mdg-rx').value,se:document.getElementById('mdg-se').value,ci:document.getElementById('mdg-ci').value};
+  if(id){const i=drugs.findIndex(d=>d.id===id);if(i>=0)drugs[i]=data;showToast('✅ Drug updated!','purple');}
+  else{drugs.push(data);showToast('✅ Drug added to database!','purple');}
+  closeModal('modal-drug');
+  renderAll();
+}
+
+function editDrug(id){
+  const d=drugs.find(x=>x.id===id);if(!d)return;
+  document.getElementById('mdg-title').textContent='Edit Drug';
+  document.getElementById('mdg-id').value=d.id;
+  document.getElementById('mdg-name').value=d.name;
+  document.getElementById('mdg-generic').value=d.generic||'';
+  document.getElementById('mdg-cat').value=d.cat;
+  document.getElementById('mdg-forms').value=d.forms||'';
+  document.getElementById('mdg-dose').value=d.dose||'';
+  document.getElementById('mdg-route').value=d.route||'Oral';
+  document.getElementById('mdg-mfr').value=d.mfr||'';
+  document.getElementById('mdg-stock').value=d.stock||0;
+  document.getElementById('mdg-risk').value=d.risk||'Low';
+  document.getElementById('mdg-rx').value=d.rx||'Yes';
+  document.getElementById('mdg-se').value=d.se||'';
+  document.getElementById('mdg-ci').value=d.ci||'';
+  document.getElementById('modal-drug').classList.add('show');
+}
+
+function savePrescription(){
+  const pt=document.getElementById('prx-patient').value;
+  const dr=document.getElementById('prx-doctor').value;
+  const dg=document.getElementById('prx-drug').value;
+  if(!pt||!dr||!dg){showToast('⚠️ Patient, Doctor and Drug are required','coral');return;}
+  const rx={id:'RX'+String(nextId.rx++).padStart(3,'0'),patient:pt,doctor:dr,drug:dg,dose:document.getElementById('prx-dose').value,freq:document.getElementById('prx-freq').value,route:document.getElementById('prx-route').value,start:document.getElementById('prx-start').value,end:document.getElementById('prx-end').value,notes:document.getElementById('prx-notes').value};
+  prescriptions.push(rx);
+  closeModal('modal-prescription');
+  showToast('✅ Prescription created!','teal');
+  renderAll();
+}
+
+function confirmDelete(type,id,label){
+  pendingDelete={type,id};
+  document.getElementById('confirm-msg').textContent=`Delete "${label}"? This cannot be undone.`;
+  document.getElementById('confirm-ok').onclick=()=>{doDelete();document.getElementById('confirm-delete').classList.remove('show');};
+  document.getElementById('confirm-delete').classList.add('show');
+}
+
+function doDelete(){
+  if(!pendingDelete)return;
+  const {type,id}=pendingDelete;
+  if(type==='patient'){patients=patients.filter(p=>p.id!==id);showToast('🗑️ Patient deleted','coral');}
+  else if(type==='doctor'){doctors=doctors.filter(d=>d.id!==id);patients.forEach(p=>{if(p.doctor===id)p.doctor='';});showToast('🗑️ Doctor deleted','coral');}
+  else if(type==='drug'){drugs=drugs.filter(d=>d.id!==id);showToast('🗑️ Drug removed','coral');}
+  else if(type==='prescription'){prescriptions=prescriptions.filter(rx=>rx.id!==id);showToast('🗑️ Prescription deleted','coral');}
+  pendingDelete=null;
+  renderAll();
+}
+
+function filterTable(tbodyId,q,cols){
+  const rows=document.querySelectorAll('#'+tbodyId+' tr[data-search]');
+  const ql=q.toLowerCase();
+  rows.forEach(r=>{r.style.display=r.dataset.search.includes(ql)?'':'none';});
+}
+
+function globalSearch(v){
+  if(!v)return;
+  const ql=v.toLowerCase();
+  const inP=patients.some(p=>p.name.toLowerCase().includes(ql));
+  const inD=doctors.some(d=>d.name.toLowerCase().includes(ql));
+  const inDg=drugs.some(d=>d.name.toLowerCase().includes(ql));
+  if(inP)nav('patients');
+  else if(inD)nav('doctors');
+  else if(inDg)nav('drugs');
+}
+
+function checkInteraction(){
+  const id1=document.getElementById('int-d1').value;
+  const id2=document.getElementById('int-d2').value;
+  if(!id1||!id2){showToast('⚠️ Select both drugs','coral');return;}
+  if(id1===id2){showToast('⚠️ Select two different drugs','amber');return;}
+  const d1=drugs.find(d=>d.id===id1);
+  const d2=drugs.find(d=>d.id===id2);
+  const n1=d1.name.toLowerCase(),n2=d2.name.toLowerCase();
+  let risk='safe',title='No Significant Interaction',msg='These medications can generally be used together based on available data. Individual patient factors always apply.',color='var(--green)';
+  if((d1.risk==='High'||d1.risk==='Critical')&&(d2.risk==='High'||d2.risk==='Critical')){risk='severe';title='HIGH RISK — Review Required';msg='Both drugs have high risk profiles. Co-administration requires specialist supervision and close monitoring.';color='var(--coral)';}
+  else if(d1.risk==='High'||d2.risk==='High'||d1.cat===d2.cat){risk='moderate';title='Moderate Caution Advised';msg=`Both drugs are ${d1.cat===d2.cat?'in the same category — additive effects possible':'marked as higher-risk'}. Monitor patient closely for adverse effects.`;color='var(--amber)';}
+  const bg=risk==='severe'?'var(--coralb)':risk==='moderate'?'var(--amberb)':'var(--greenb)';
+  const bc=risk==='severe'?'rgba(255,107,107,.25)':risk==='moderate'?'rgba(251,191,36,.25)':'rgba(52,211,153,.25)';
+  document.getElementById('int-result').innerHTML=`<div style="background:${bg};border:1px solid ${bc};border-radius:12px;padding:14px"><div style="font-size:20px;margin-bottom:6px">${risk==='severe'?'🔴':risk==='moderate'?'🟡':'✅'}</div><div style="font-size:14px;font-weight:800;color:${color};margin-bottom:5px">${title}</div><div style="font-size:12px;color:var(--text2)"><strong>${esc(d1.name)}</strong> + <strong>${esc(d2.name)}</strong><br/><br/>${msg}</div></div>`;
+}
+
+function nav(page){
+  document.querySelectorAll('[id^="pg-"]').forEach(el=>el.style.display='none');
+  document.getElementById('pg-'+page).style.display='block';
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>{if(n.textContent.trim().toLowerCase().startsWith(page.toLowerCase().slice(0,5)))n.classList.add('active');});
+  const titles={dashboard:'Dashboard',patients:'Patients',doctors:'Doctors',drugs:'Drug Database',prescriptions:'Prescriptions',interactions:'Drug Interactions'};
+  const subs={dashboard:'Live overview',patients:'Add, edit & manage patients',doctors:'Add, edit & manage doctors',drugs:'Manage drug inventory',prescriptions:'Create & track prescriptions',interactions:'Check drug safety'};
+  document.getElementById('page-title').innerHTML=titles[page]+` <span class="tb-sub">${subs[page]||''}</span>`;
+  currentPage=page;
+}
+
+function toggleTheme(){darkMode=!darkMode;document.body.classList.toggle('light',!darkMode);document.getElementById('theme-btn').textContent=darkMode?'🌙':'☀️';}
+
+function showToast(msg,type='teal'){
+  const old=document.querySelector('.toast');if(old)old.remove();clearTimeout(toastTm);
+  const cols={teal:'var(--teal)',blue:'var(--blue)',coral:'var(--coral)',amber:'var(--amber)',purple:'var(--purple)'};
+  const t=document.createElement('div');t.className='toast';t.style.borderColor=cols[type]||cols.teal;t.textContent=msg;
+  document.getElementById('app').appendChild(t);
+  toastTm=setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),250);},3000);
+}
+
+function initials(name){return name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();}
+function esc(s){if(!s)return '';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function adh(a){return a>=90?'pg':a>=70?'pa':'pc';}
+function riskPill(r){return r==='Low'?'pg':r==='Moderate'?'pa':r==='High'||r==='Critical'?'pc':'pb';}
+
+init();
+</script>
+</body></html>
